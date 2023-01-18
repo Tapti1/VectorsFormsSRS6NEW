@@ -25,34 +25,45 @@ namespace VectorsForms
 
         public void Insert(DomainObject v)
         {
-            string query = $"insert into {v.InsertObjectString()})";
+            string query = $"insert into {v.InsertObjectString()})";            
 
             _connection.openConnection();
             SqlCommand cmd = new SqlCommand(query, _connection.getConnection());
             cmd.ExecuteNonQuery();
             _connection.closeConnection();
+            Console.WriteLine(query);
         }
         public DomainObject GetById(int id)
         {
-            string query = $"SELECT * FROM {tableName} WHERE id={id}";
-            SqlCommand cmd = new SqlCommand(query, _connection.getConnection());
-            List<string> par = new List<string>();
-            _connection.openConnection();
-            SqlDataReader reader = cmd.ExecuteReader();
+            ObjectWatcher _objectList=ObjectWatcher.GetInstance();
 
-            reader.Read();
-            par.Add(Convert.ToString(reader.GetInt32(0)));
-            par.Add(Convert.ToString(reader.GetValue(1)));
-            par.Add(Convert.ToString(reader.GetValue(2)));
-            reader.Close();
-            _connection.closeConnection();
+            DomainObject result = _objectList.GetObject($"{tableName}_{id}");
+            //если объекта нет в objectList
+            if (result == null)
+            {
+                string query = $"SELECT * FROM {tableName} WHERE id={id}";
+                SqlCommand cmd = new SqlCommand(query, _connection.getConnection());
+                List<string> par = new List<string>();
+                _connection.openConnection();
+                SqlDataReader reader = cmd.ExecuteReader();
 
-            //рефлексия
-            string className=CamelCase.GetClassName(tableName);
-            Type type = Type.GetType($"VectorsForms.{className}");
-            System.Reflection.ConstructorInfo ci = type.GetConstructor(new Type[] { typeof(List<string>) });
-            
-            return (DomainObject) ci.Invoke(new object[] {par});
+                reader.Read();
+                par.Add(Convert.ToString(reader.GetInt32(0)));
+                par.Add(Convert.ToString(reader.GetValue(1)));
+                par.Add(Convert.ToString(reader.GetValue(2)));
+                reader.Close();
+                _connection.closeConnection();
+                
+                string className = CamelCase.GetClassName(tableName);
+                Type type = Type.GetType($"VectorsForms.{className}");                
+                System.Reflection.ConstructorInfo ci = type.GetConstructor(new Type[] { typeof(List<string>) });
+                result = (DomainObject)ci.Invoke(new object[] { par });
+
+                //добавляем объект в objectList
+                _objectList.Add($"{tableName}_{id}", result);
+                Console.WriteLine(query);
+            }
+            return result;
         }
         public bool Delete(int id)
         {
@@ -62,6 +73,7 @@ namespace VectorsForms
             SqlCommand cmd = new SqlCommand(query, _connection.getConnection());
             int num = cmd.ExecuteNonQuery();
             _connection.closeConnection();
+            Console.WriteLine(query);
 
             return num > 0;
         }
@@ -72,6 +84,8 @@ namespace VectorsForms
             SqlCommand cmd = new SqlCommand(query, _connection.getConnection());
             int num = cmd.ExecuteNonQuery();
             _connection.closeConnection();
+            Console.WriteLine(query);
+
             return num > 0;
         }
     }

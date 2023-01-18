@@ -6,8 +6,8 @@ namespace VectorsForms
 {
     public partial class Form1 : Form
     {
-        VectorMapper vectorMapperList;
-        TriangleMapper triangleMapperList;
+        //VectorMapper vectorMapperList;
+        //TriangleMapper triangleMapperList;
 
         Mapper vectorMapper;
         Mapper triangleMapper;
@@ -23,8 +23,8 @@ namespace VectorsForms
             vectorMapper = new Mapper("vectors");
             triangleMapper = new Mapper("triangles");
 
-            vectorMapperList = new VectorMapper();
-            triangleMapperList = new TriangleMapper();
+            //vectorMapperList = new VectorMapper();
+            //triangleMapperList = new TriangleMapper();
             CreateColumns();
             updateGridVectors();
             updateGridTriangles();
@@ -77,7 +77,7 @@ namespace VectorsForms
         public void updateGridVectors()
         {
             dataGridView1.Rows.Clear();
-            List<Vector> vectors = vectorMapperList.SelectAll();
+            List<Vector> vectors = new List<Vector>();
             for(int i = 0; i < vectors.Count(); i++)
             {
                 dataGridView1.Rows.Add(vectors[i]._id, vectors[i]._x, vectors[i]._y);
@@ -86,7 +86,7 @@ namespace VectorsForms
         public void updateGridTriangles()
         {
             triangleDataGridView.Rows.Clear();
-            List<Triangle> triangles = triangleMapperList.SelectAll();
+            List<Triangle> triangles = new List<Triangle>();
             for (int i = 0; i < triangles.Count(); i++)
             {
                 triangleDataGridView.Rows.Add(triangles[i]._id, triangles[i].v1._id, 
